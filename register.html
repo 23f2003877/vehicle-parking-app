@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+{% set title = "Join SunnyPark" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card mt-5">
+                <div class="card-header text-center" style="background: linear-gradient(45deg, #28a745, #20c997); color: white;">
+                    <h3> Join SunnyPark!</h3>
+                    <p class="mb-0">Create your free account today</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="emoji-large">🎉</div>
+                        <p class="text-muted">Start your hassle-free parking journey!</p>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                        <div class="mb-4">
+                            <label for="user_id" class="form-label">
+                                <span class="emoji-medium">👤</span>Choose a Username
+                            </label>
+                            <input type="text" class="form-control" id="user_id" name="user_id" 
+                                   placeholder="Enter a unique username" required minlength="3" maxlength="20"
+                                   pattern="^[a-zA-Z0-9_]{3,20}$">
+                            <div class="form-text">
+                                🔤 3-20 characters, letters, numbers, and underscores only
+                            </div>
+                            <div class="invalid-feedback">
+                                ❌ Username must be 3-20 characters with letters, numbers, or underscores only!
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">
+                                <span class="emoji-medium">🔒</span>Create Password
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Create a strong password" required minlength="6" maxlength="50"
+                                   pattern="^(?=.*[a-z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$">
+                            <div class="form-text">
+                                🔐 Minimum 6 characters, at least 1 letter and 1 number
+                            </div>
+                            <div class="invalid-feedback">
+                                ❌ Password must be at least 6 characters with at least 1 letter and 1 number!
+                            </div>
+                            <!-- Password strength indicator -->
+                            <div class="password-strength mt-2">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strength-fill"></div>
+                                </div>
+                                <small class="strength-text" id="strength-text">Password strength will be shown here</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label">
+                                <span class="emoji-medium">🔄</span>Confirm Password
+                            </label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                   placeholder="Confirm your password" required>
+                            <div class="invalid-feedback">
+                                ❌ Passwords do not match!
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    📋 I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="newsletter">
+                                <label class="form-check-label" for="newsletter">
+                                    📧 Send me updates about new features and parking deals
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                                 Create My Account
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="text-muted">Already have an account?</p>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                            🔐 Login Here
+                        </a>
+                    </div>
+                    
+                    <!-- Benefits -->
+                    <div class="mt-4 p-3" style="background: linear-gradient(45deg, #e8f5e8, #f0f8ff); border-radius: 10px;">
+                        <h6 class="text-center">🎁 What you get with SunnyPark:</h6>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <small>🆓 Free account</small><br>
+                                <small>⚡ Instant booking</small>
+                            </div>
+                            <div class="col-6">
+                                <small>💰 Best prices</small><br>
+                           
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trust Indicators -->
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h6>🏆 Trusted by Thousands</h6>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="text-primary">⭐⭐⭐⭐⭐</div>
+                            <small class="text-muted">4.9/5 Rating</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-success"><strong>50K+</strong></div>
+                            <small class="text-muted">Happy Users</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-info"><strong>99.9%</strong></div>
+                            <small class="text-muted">Uptime</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">📋 Terms of Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>🤝 Welcome to SunnyPark!</h6>
+                <p>By using our service, you agree to:</p>
+                <ul>
+                    <li> Use parking spots responsibly</li>
+                    <li>💰 Pay for reserved time accurately</li>
+                    <li>🕐 Release spots when leaving</li>
+                    <li>🛡️ Respect other users and property</li>
+                    <li>📱 Keep your account information updated</li>
+                </ul>
+                <p class="text-muted">These terms help us maintain a great experience for everyone! 😊</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">✅ I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🔐 Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>🛡️ Your Privacy Matters</h6>
+                <p>We protect your data by:</p>
+                <ul>
+                    <li>🔒 Encrypting all sensitive information</li>
+                    <li>📊 Only collecting necessary data</li>
+                    <li>🚫 Never selling your information</li>
+                    <li>🔄 Giving you control over your data</li>
+                    <li>🗑️ Allowing account deletion anytime</li>
+                </ul>
+                <p class="text-muted">Your trust is our priority! 💙</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">✅ I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Enhanced validation styles -->
+<style>
+    .password-strength {
+        margin-top: 8px;
+    }
+    .strength-bar {
+        width: 100%;
+        height: 4px;
+        background-color: #e9ecef;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    .strength-fill {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+    .strength-weak { background-color: #dc3545; }
+    .strength-fair { background-color: #fd7e14; }
+    .strength-good { background-color: #ffc107; }
+    .strength-strong { background-color: #28a745; }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.64-.64 1.03 1.04L6.5 4.6l.64.64L4.66 7.73z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 5.8 2.4 2.4 M8.2 5.8l-2.4 2.4'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    @keyframes emojiFloat {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-30px) scale(1.5);
+        }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registerForm');
+        const userIdInput = document.getElementById('user_id');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const strengthFill = document.getElementById('strength-fill');
+        const strengthText = document.getElementById('strength-text');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Enhanced username validation
+        userIdInput.addEventListener('input', function() {
+            const value = this.value;
+            const pattern = /^[a-zA-Z0-9_]{3,20}$/;
+            
+            if (value.length === 0) {
+                this.classList.remove('is-valid', 'is-invalid');
+            } else if (pattern.test(value)) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+                celebrateField(this);
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+        
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length >= 6) score += 1;
+            if (password.length >= 8) score += 1;
+            if (/[a-z]/.test(password)) score += 1;
+            if (/[A-Z]/.test(password)) score += 1;
+            if (/\d/.test(password)) score += 1;
+            if (/[@$!%*?&]/.test(password)) score += 1;
+            
+            let strength = '';
+            let className = '';
+            let percentage = 0;
+            let feedback = '';
+            
+            if (score <= 2) {
+                strength = 'Weak';
+                className = 'strength-weak';
+                percentage = 25;
+                feedback = '❌ Too weak - add more characters and numbers';
+            } else if (score <= 3) {
+                strength = 'Fair';
+                className = 'strength-fair';
+                percentage = 50;
+                feedback = '⚠️ Fair - consider adding uppercase letters or symbols';
+            } else if (score <= 4) {
+                strength = 'Good';
+                className = 'strength-good';
+                percentage = 75;
+                feedback = '👍 Good - almost there!';
+            } else {
+                strength = 'Strong';
+                className = 'strength-strong';
+                percentage = 100;
+                feedback = '🔒 Strong password!';
+            }
+            
+            return { strength, className, percentage, feedback, score };
+        }
+        
+        // Password input validation
+        passwordInput.addEventListener('input', function() {
+            const value = this.value;
+            
+            if (value.length === 0) {
+                if (strengthFill) {
+                    strengthFill.style.width = '0%';
+                    strengthFill.className = 'strength-fill';
+                }
+                if (strengthText) {
+                    strengthText.textContent = 'Password strength will be shown here';
+                }
+                this.classList.remove('is-valid', 'is-invalid');
+            } else {
+                const result = checkPasswordStrength(value);
+                
+                if (strengthFill) {
+                    strengthFill.style.width = result.percentage + '%';
+                    strengthFill.className = 'strength-fill ' + result.className;
+                }
+                if (strengthText) {
+                    strengthText.textContent = result.feedback;
+                }
+                
+                // Validate against pattern
+                const pattern = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/;
+                if (pattern.test(value) && result.score >= 3) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    celebrateField(this);
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+            
+            // Re-validate confirm password if it has a value
+            if (confirmPasswordInput.value) {
+                validatePasswordMatch();
+            }
+        });
+        
+        // Password confirmation validation
+        function validatePasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword.length === 0) {
+                confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
+            } else if (password === confirmPassword) {
+                confirmPasswordInput.classList.remove('is-invalid');
+                confirmPasswordInput.classList.add('is-valid');
+                celebrateField(confirmPasswordInput);
+            } else {
+                confirmPasswordInput.classList.remove('is-valid');
+                confirmPasswordInput.classList.add('is-invalid');
+            }
+        }
+        
+        confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+        
+        // Emoji celebration function
+        function celebrateField(input) {
+            // Prevent multiple celebrations for the same field
+            if (input.dataset.celebrated === 'true') return;
+            input.dataset.celebrated = 'true';
+            
+            const emojis = ['🎉', '✨', '🌟', '💫', '🎊'];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            const emojiEl = document.createElement('div');
+            emojiEl.textContent = emoji;
+            emojiEl.style.position = 'fixed';
+            emojiEl.style.left = (input.getBoundingClientRect().right + 10) + 'px';
+            emojiEl.style.top = input.getBoundingClientRect().top + 'px';
+            emojiEl.style.fontSize = '24px';
+            emojiEl.style.pointerEvents = 'none';
+            emojiEl.style.zIndex = '9999';
+            emojiEl.style.animation = 'emojiFloat 1s ease-out forwards';
+            document.body.appendChild(emojiEl);
+            
+            setTimeout(() => emojiEl.remove(), 1000);
+            
+            // Reset celebration flag after a delay
+            setTimeout(() => {
+                input.dataset.celebrated = 'false';
+            }, 2000);
+        }
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validate username
+            if (!userIdInput.checkValidity()) {
+                userIdInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            // Validate password
+            if (!passwordInput.checkValidity()) {
+                passwordInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            // Validate password match
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Scroll to first invalid field
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+            } else {
+                // Show loading state
+                submitBtn.innerHTML = '⏳ Creating Account...';
+                submitBtn.disabled = true;
+                
+                // Celebration animation
+                const emojis = ['🎉', '🚀', '✨', '🌟', '💫', '🎊', '🎈'];
+                emojis.forEach((emoji, index) => {
+                    setTimeout(() => {
+                        const emojiEl = document.createElement('div');
+                        emojiEl.textContent = emoji;
+                        emojiEl.style.position = 'fixed';
+                        emojiEl.style.left = Math.random() * window.innerWidth + 'px';
+                        emojiEl.style.top = '20px';
+                        emojiEl.style.fontSize = '30px';
+                        emojiEl.style.pointerEvents = 'none';
+                        emojiEl.style.zIndex = '9999';
+                        emojiEl.style.animation = 'emojiFloat 2s ease-out forwards';
+                        document.body.appendChild(emojiEl);
+                        
+                        setTimeout(() => emojiEl.remove(), 2000);
+                    }, index * 200);
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

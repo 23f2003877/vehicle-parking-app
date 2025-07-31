@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% set title = "Login to SunnyPark" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card mt-5">
+                <div class="card-header text-center" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white;">
+                    <h3> Welcome Back!</h3>
+                    <p class="mb-0">Login to your SunnyPark account</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="emoji-large"></div>
+                        <p class="text-muted">Enter your credentials to access your dashboard</p>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="mb-4">
+                            <label for="user_id" class="form-label">
+                                <span class="emoji-medium">👤</span>Username
+                            </label>
+                            <input type="text" class="form-control" id="user_id" name="user_id" 
+                                   placeholder="Enter your username" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">
+                                <span class="emoji-medium">🔒</span>Password
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Enter your password" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember_me">
+                                <label class="form-check-label" for="remember_me">
+                                     Remember me
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Login Now
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="text-muted">Don't have an account yet?</p>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                            📝 Create New Account
+                        </a>
+                    </div>
+                    
+                    
+            <!-- Security Info -->
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h6> Your Security Matters</h6>
+                    <p class="text-muted small mb-0">
+                        We use industry-standard encryption to protect your data. 
+                        Your information is safe with us! 🛡️
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add form validation feedback
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input[required]');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                }
+            });
+        });
+        
+        // Demo account quick-fill buttons
+        const demoButtons = document.querySelectorAll('.demo-fill');
+        demoButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.dataset.type;
+                if (type === 'admin') {
+                    document.getElementById('user_id').value = 'admin';
+                    document.getElementById('password').value = 'admin123';
+                } else if (type === 'user') {
+                    document.getElementById('user_id').value = 'demo';
+                    document.getElementById('password').value = 'demo123';
+                }
+            });
+        });
+        
+        // Add emoji animation on successful field completion
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.checkValidity()) {
+                    // Add success emoji
+                    if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('success-emoji')) {
+                        const emoji = document.createElement('span');
+                        emoji.textContent = '✅';
+                        emoji.className = 'success-emoji';
+                        emoji.style.marginLeft = '10px';
+                        this.parentNode.appendChild(emoji);
+                        
+                        setTimeout(() => emoji.remove(), 2000);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}📊 My Statistics{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">📊 My Statistics & Insights</h2>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">🏠 Dashboard</a>
+            <a href="{{ url_for('user_history') }}" class="btn btn-outline-secondary">📋 History</a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Total Bookings</div>
+                            <div class="h5 mb-0">{{ reservations|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Completed Trips</div>
+                            <div class="h5 mb-0">{{ completed_reservations|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Active Bookings</div>
+                            <div class="h5 mb-0">{{ active_reservations|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Total Spent</div>
+                            <div class="h5 mb-0">${{ "%.2f"|format(total_spent) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i>₹</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Booking Status Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">📊 Booking Status Overview</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingStatusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Spending Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">💰 Monthly Spending Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlySpendingChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights Cards -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">💡 Personal Insights</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if completed_reservations %}
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h6>⏰ Average Duration</h6>
+                                {% set total_duration = completed_reservations|sum(attribute='duration_hours') %}
+                                {% set avg_duration = total_duration / completed_reservations|length %}
+                                <p class="h5 text-primary mb-0">{{ "%.1f"|format(avg_duration) }} hours</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h6>💵 Average Cost</h6>
+                                {% set avg_cost = total_spent / completed_reservations|length %}
+                                <p class="h5 text-success mb-0">${{ "%.2f"|format(avg_cost) }}</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h6>🏅 Favorite Lot</h6>
+                                {% set lot_counts = {} %}
+                                {% for reservation in completed_reservations %}
+                                    {% if reservation.spot.lot.name in lot_counts %}
+                                        {% set _ = lot_counts.update({reservation.spot.lot.name: lot_counts[reservation.spot.lot.name] + 1}) %}
+                                    {% else %}
+                                        {% set _ = lot_counts.update({reservation.spot.lot.name: 1}) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if lot_counts %}
+                                    {% set favorite_lot = lot_counts.items()|list|sort(attribute=1, reverse=true)|first %}
+                                    <p class="h6 text-info mb-0">{{ favorite_lot[0] }}</p>
+                                    <small class="text-muted">({{ favorite_lot[1] }} visits)</small>
+                                {% else %}
+                                    <p class="h6 text-muted mb-0">No data</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12">
+                            <div class="text-center p-4 bg-light rounded">
+                                <h6 class="text-muted">📈 Start parking to see your insights!</h6>
+                                <p class="text-muted mb-0">Complete some bookings to get personalized statistics and trends.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Activity Chart -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">📅 Weekly Activity Pattern</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyActivityChart" width="400" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Booking Status Pie Chart
+    const statusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Active'],
+            datasets: [{
+                data: [{{ completed_reservations|length }}, {{ active_reservations|length }}],
+                backgroundColor: ['#28a745', '#ffc107'],
+                borderColor: ['#1e7e34', '#e0a800'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Monthly Spending Line Chart
+    const spendingCtx = document.getElementById('monthlySpendingChart').getContext('2d');
+    
+    // Calculate monthly spending data
+    const monthlyData = {};
+    {% for reservation in completed_reservations %}
+        {% if reservation.leaving_timestamp %}
+            const month{{ loop.index }} = '{{ reservation.leaving_timestamp.strftime("%Y-%m") }}';
+            const cost{{ loop.index }} = {{ reservation.cost }};
+            if (!monthlyData[month{{ loop.index }}]) {
+                monthlyData[month{{ loop.index }}] = 0;
+            }
+            monthlyData[month{{ loop.index }}] += cost{{ loop.index }};
+        {% endif %}
+    {% endfor %}
+
+    const sortedMonths = Object.keys(monthlyData).sort();
+    const monthlySpending = sortedMonths.map(month => monthlyData[month]);
+
+    new Chart(spendingCtx, {
+        type: 'line',
+        data: {
+            labels: sortedMonths,
+            datasets: [{
+                label: 'Monthly Spending ($)',
+                data: monthlySpending,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(2);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Weekly Activity Bar Chart
+    const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
+    
+    // Calculate weekly activity data
+    const weeklyData = {
+        'Monday': 0, 'Tuesday': 0, 'Wednesday': 0, 'Thursday': 0,
+        'Friday': 0, 'Saturday': 0, 'Sunday': 0
+    };
+    
+    {% for reservation in reservations %}
+        {% if reservation.parking_timestamp %}
+            const dayName{{ loop.index }} = '{{ reservation.parking_timestamp.strftime("%A") }}';
+            weeklyData[dayName{{ loop.index }}]++;
+        {% endif %}
+    {% endfor %}
+
+    new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(weeklyData),
+            datasets: [{
+                label: 'Bookings',
+                data: Object.values(weeklyData),
+                backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% set title = "Delete Parking Lot" %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4" style="background: linear-gradient(45deg, #dc3545, #bd2130); color: white; border-radius: 20px;">
+                    <h2>🗑️ Delete Parking Lot</h2>
+                    <p class="lead mb-0">Confirm deletion of parking lot</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5>⚠️ Confirm Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <strong>🚨 Warning:</strong> This action cannot be undone!
+                    </div>
+                    
+                    <!-- Parking Lot Details -->
+                    <div class="mb-4">
+                        <h6>Parking Lot to be deleted:</h6>
+                        <div class="border p-3 rounded bg-light">
+                            <h5>🏢 {{ lot.name }}</h5>
+                            <p class="mb-1"><strong>📍 Address:</strong> {{ lot.address }}, {{ lot.pin_code }}</p>
+                            <p class="mb-1"><strong>💰 Price:</strong> ₹{{ "%.2f"|format(lot.price_per_unit) }}/hour</p>
+                            <p class="mb-1"><strong>🅿️ Total Spots:</strong> {{ lot.max_spots }}</p>
+                            <p class="mb-0"><strong>📅 Created:</strong> {{ lot.created_at.strftime('%Y-%m-%d %H:%M') if lot.created_at else 'N/A' }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if active_reservations > 0 %}
+                        <!-- Cannot Delete - Active Reservations -->
+                        <div class="alert alert-warning">
+                            <strong>🚫 Cannot Delete:</strong> This parking lot has {{ active_reservations }} active reservation(s).
+                            <br>All vehicles must be released before you can delete this parking lot.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('view_parking_lot_page', lot_id=lot.id) }}" class="btn btn-secondary">
+                                ← Back to Parking Lot
+                            </a>
+                            <button class="btn btn-secondary" disabled>
+                                🔒 Cannot Delete ({{ active_reservations }} active reservations)
+                            </button>
+                        </div>
+                    {% else %}
+                        <!-- Can Delete -->
+                        <div class="alert alert-success">
+                            <strong>✅ Ready to Delete:</strong> No active reservations found. This parking lot can be safely deleted.
+                        </div>
+                        
+                        <!-- What will be deleted -->
+                        <div class="mb-4">
+                            <h6>What will be deleted:</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item">🏢 Parking lot "{{ lot.name }}"</li>
+                                <li class="list-group-item">🅿️ All {{ lot.max_spots }} parking spots</li>
+                                <li class="list-group-item">📋 All historical reservation records</li>
+                            </ul>
+                        </div>
+                        
+                        <form method="POST">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                                <label class="form-check-label" for="confirmDelete">
+                                    <strong>I understand that this action cannot be undone</strong>
+                                </label>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('view_parking_lot_page', lot_id=lot.id) }}" class="btn btn-secondary">
+                                    ❌ Cancel
+                                </a>
+                                <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                                    🗑️ Permanently Delete
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Form validation and UI effects
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmCheckbox = document.getElementById('confirmDelete');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const form = document.querySelector('form');
+        
+        if (confirmCheckbox && deleteBtn) {
+            confirmCheckbox.addEventListener('change', function() {
+                deleteBtn.disabled = !this.checked;
+            });
+            
+            form.addEventListener('submit', function(e) {
+                if (!confirm('🗑️ Are you absolutely sure you want to delete this parking lot? This action cannot be undone!')) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                deleteBtn.innerHTML = '⏳ Deleting...';
+                deleteBtn.disabled = true;
+            });
+        }
+        
+        // Add hover effects
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn:hover:not(:disabled) {
+                transform: translateY(-1px);
+            }
+            .btn {
+                transition: all 0.2s ease;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

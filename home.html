@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% set title = "Welcome to SunnyPark" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="emoji-large floating"></div>
+                <div class="emoji-large floating">🅿️</div>
+                <div class="emoji-large floating">🏢</div>
+                <h1 class="hero-title">Welcome to SunnyPark!</h1>
+                <p class="hero-subtitle"> The smartest way to find and reserve parking spots </p>
+                
+                {% if not current_user.is_authenticated %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
+                             Login Now
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">
+                            📝 Sign Up Free
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                            {% if current_user.is_admin %}
+                                 Go to Admin Dashboard
+                            {% else %}
+                                 Go to Dashboard
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+            <h2 class="display-4" style="color: white;"> Why Choose SunnyPark? </h2>
+            <p class="lead" style="color: rgba(255,255,255,0.9);">Experience parking like never before with our amazing features!</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon">🚀</div>
+                    <h4>Super Fast Booking</h4>
+                    <p class="text-muted">Reserve your parking spot in seconds! No more circling around looking for parking.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon">💰</div>
+                    <h4>Best Prices</h4>
+                    <p class="text-muted">Competitive pricing with transparent costs. Pay only for the time you park!</p>
+                </div>
+            </div>
+        </div>
+        
+       
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Secure & Safe</h4>
+                    <p class="text-muted">Your vehicle and data are safe with our secure parking solutions.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon">⏰</div>
+                    <h4>24/7 Availability</h4>
+                    <p class="text-muted">Book parking spots anytime, anywhere. We're always here for you!</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon">🎯</div>
+                    <h4>Smart Allocation</h4>
+                    <p class="text-muted">Our smart system finds the best available spot for you automatically!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+{% if current_user.is_authenticated and current_user.is_admin %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-12 text-center mb-4">
+            <h3 style="color: white;">📊 Platform Statistics</h3>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card">
+                <span class="stats-number">🏢 {{ parking_lots_count if parking_lots_count else 0 }}</span>
+                <div class="stats-label">Parking Lots</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card">
+                <span class="stats-number">🅿️ {{ total_spots if total_spots else 0 }}</span>
+                <div class="stats-label">Total Spots</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card">
+                <span class="stats-number">👥 {{ users_count if users_count else 0 }}</span>
+                <div class="stats-label">Registered Users</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card">
+                <span class="stats-number"> {{ active_reservations if active_reservations else 0 }}</span>
+                <div class="stats-label">Active Reservations</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- How it Works Section -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+            <h2 class="display-4" style="color: white;">🎯 How It Works</h2>
+            <p class="lead" style="color: rgba(255,255,255,0.9);">Get started in just 3 simple steps!</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="emoji-large">1️⃣</div>
+                    <h4>Sign Up</h4>
+                    <p class="text-muted">Create your free account in seconds. It's quick and easy! 📝</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="emoji-large">2️⃣</div>
+                    <h4>Find & Book</h4>
+                    <p class="text-muted">Browse available parking lots and book your perfect spot! 🔍</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="emoji-large">3️⃣</div>
+                    <h4>Park & Enjoy</h4>
+                    <p class="text-muted">Arrive at your reserved spot and enjoy hassle-free parking! 🎉</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+{% if not current_user.is_authenticated %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card text-center" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white;">
+                <div class="card-body py-5">
+                    <h2>🚀 Ready to Start Parking Smarter?</h2>
+                    <p class="lead mb-4">Join thousands of happy users who've made parking stress-free!</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg me-3">
+                        📝 Get Started Free
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        🔐 Already a Member? Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Contact Info -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4>📞 Need Help?</h4>
+                    <p class="text-muted mb-3">Our support team is here to help you!</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>📧 Email Support</h6>
+                            <p class="text-muted">support@sunnypark.com</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>📱 Phone Support</h6>
+                            <p class="text-muted">+91 98888 25555</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>💬 Live Chat</h6>
+                            <p class="text-muted">24/7 Available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add some fun interactions
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click effect to feature cards
+        const featureCards = document.querySelectorAll('.card');
+        featureCards.forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+    });
+</script>
+{% endblock %}

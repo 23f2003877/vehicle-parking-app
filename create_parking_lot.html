@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% set title = "Create New Parking Lot" %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 20px;">
+                    <h2> Create New Parking Lot</h2>
+                    <p class="lead mb-0">Add a new parking lot to your system</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🏢 Parking Lot Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">🏢 Parking Lot Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required 
+                                       placeholder="e.g., City Center Parking"
+                                       value="{{ request.form.get('name', '') }}">
+                                <div class="form-text">Choose a descriptive name for your parking lot</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="price_per_unit" class="form-label"> Price per Hour (₹)</label>
+                                <input type="number" class="form-control" id="price_per_unit" name="price_per_unit" 
+                                       required min="1" step="0.01" placeholder="50.00"
+                                       value="{{ request.form.get('price_per_unit', '') }}">
+                                <div class="form-text">Set the hourly rate for parking</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">📍 Complete Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required 
+                                      placeholder="Enter the complete address including street, area, city">{{ request.form.get('address', '') }}</textarea>
+                            <div class="form-text">Provide the full address for easy location</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="pin_code" class="form-label"> PIN Code</label>
+                                <input type="text" class="form-control" id="pin_code" name="pin_code" required 
+                                       pattern="[0-9]{6}" placeholder="123456" maxlength="6"
+                                       value="{{ request.form.get('pin_code', '') }}">
+                                <div class="form-text">6-digit postal code</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="max_spots" class="form-label"> Number of Parking Spots</label>
+                                <input type="number" class="form-control" id="max_spots" name="max_spots" 
+                                       required min="1" max="1000" placeholder="50"
+                                       value="{{ request.form.get('max_spots', '') }}">
+                                <div class="form-text">Total parking spots available (1-1000)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><strong>ℹ️ What happens next:</strong></h6>
+                            <ul class="mb-0">
+                                <li>🅿️ Parking spots will be automatically created and numbered (1, 2, 3, ...)</li>
+                                <li>🟢 All spots will be initially set as "Available"</li>
+                                <li>📊 You can monitor and manage the lot from the admin dashboard</li>
+                                <li>✏️ You can edit the lot details or add/remove spots later</li>
+                            </ul>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="card mt-4 bg-light">
+                            <div class="card-header">
+                                <h6>📋 Preview</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>🏢 Lot Name:</strong> <span id="preview-name">-</span></p>
+                                        <p><strong>📍 Address:</strong> <span id="preview-address">-</span></p>
+                                        <p><strong>📮 PIN:</strong> <span id="preview-pin">-</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>💰 Rate:</strong> ₹<span id="preview-price">0.00</span>/hour</p>
+                                        <p><strong>🅿️ Total Spots:</strong> <span id="preview-spots">0</span></p>
+                                        <p><strong>📊 Initial Status:</strong> <span class="badge bg-success">All Available</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">
+                                ❌ Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                🚀 Create Parking Lot
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Guide -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h6>✅ After Creating Your Parking Lot</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>👁️ View & Monitor:</h6>
+                            <ul class="small">
+                                <li>Real-time occupancy status</li>
+                                <li>Revenue tracking</li>
+                                <li>User reservations</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>⚡ Quick Actions:</h6>
+                            <ul class="small">
+                                <li>Edit lot details</li>
+                                <li>Add/remove spots</li>
+                                <li>View detailed reports</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Form validation and live preview
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        
+        // Live preview functionality
+        const nameInput = document.getElementById('name');
+        const addressInput = document.getElementById('address');
+        const pinInput = document.getElementById('pin_code');
+        const priceInput = document.getElementById('price_per_unit');
+        const spotsInput = document.getElementById('max_spots');
+        
+        const previewName = document.getElementById('preview-name');
+        const previewAddress = document.getElementById('preview-address');
+        const previewPin = document.getElementById('preview-pin');
+        const previewPrice = document.getElementById('preview-price');
+        const previewSpots = document.getElementById('preview-spots');
+        
+        function updatePreview() {
+            previewName.textContent = nameInput.value || '-';
+            previewAddress.textContent = addressInput.value || '-';
+            previewPin.textContent = pinInput.value || '-';
+            previewPrice.textContent = parseFloat(priceInput.value || 0).toFixed(2);
+            previewSpots.textContent = spotsInput.value || '0';
+        }
+        
+        nameInput.addEventListener('input', updatePreview);
+        addressInput.addEventListener('input', updatePreview);
+        pinInput.addEventListener('input', updatePreview);
+        priceInput.addEventListener('input', updatePreview);
+        spotsInput.addEventListener('input', updatePreview);
+        
+        // Initial preview update
+        updatePreview();
+        
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            // Validate PIN code
+            const pinCode = pinInput.value;
+            if (!/^[0-9]{6}$/.test(pinCode)) {
+                e.preventDefault();
+                alert('❌ Please enter a valid 6-digit PIN code');
+                pinInput.focus();
+                return false;
+            }
+            
+            // Validate price
+            const price = parseFloat(priceInput.value);
+            if (price <= 0) {
+                e.preventDefault();
+                alert('❌ Price must be greater than 0');
+                priceInput.focus();
+                return false;
+            }
+            
+            // Validate spots
+            const spots = parseInt(spotsInput.value);
+            if (spots <= 0 || spots > 1000) {
+                e.preventDefault();
+                alert('❌ Number of spots must be between 1 and 1000');
+                spotsInput.focus();
+                return false;
+            }
+            
+            // Show loading state
+            submitBtn.innerHTML = '⏳ Creating Parking Lot...';
+            submitBtn.disabled = true;
+            
+            // Show progress message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info mt-3';
+            alertDiv.innerHTML = '<strong>🔄 Processing...</strong> Creating your parking lot and generating ' + spots + ' parking spots...';
+            form.appendChild(alertDiv);
+        });
+        
+        // Add hover effects and animations
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn:hover {
+                transform: translateY(-1px);
+            }
+            .btn {
+                transition: all 0.2s ease;
+            }
+            .form-control:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            }
+            .card {
+                transition: all 0.3s ease;
+            }
+            .card:hover {
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block title %}📈 Charts & Reports{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">📈 Charts & Reports</h2>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary"> Dashboard</a>
+            <a href="{{ url_for('admin_analytics') }}" class="btn btn-outline-secondary">📊 Analytics</a>
+        </div>
+    </div>
+
+    <!-- Main Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Parking Lot Occupancy</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="occupancyChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Weekly Revenue Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Peak Hours Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="peakHoursChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Weekly Usage Pattern</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyPatternChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Lot Performance</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="lotPerformanceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Quick Reports</h5>
+                    <button class="btn btn-sm btn-primary" onclick="generateReport()">
+                         Generate Full Report
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-primary">
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <div class="text-primary">📈</div>
+                                        <h6>Daily Revenue</h6>
+                                        <p class="mb-0" id="dailyRevenue">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-success">
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <div class="text-success">🎯</div>
+                                        <h6>Peak Occupancy</h6>
+                                        <p class="mb-0" id="peakOccupancy">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-info">
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <div class="text-info">🕐</div>
+                                        <h6>Avg Duration</h6>
+                                        <p class="mb-0" id="avgDuration">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-warning">
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <div class="text-warning">⭐</div>
+                                        <h6>Best Lot</h6>
+                                        <p class="mb-0" id="bestLot">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📤 Export & Download</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>📊 Data Exports</h6>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button class="btn btn-outline-primary mb-2" onclick="exportData('reservations')">
+                                     Export Reservations Data
+                                </button>
+                                <button class="btn btn-outline-success mb-2" onclick="exportData('revenue')">
+                                     Export Revenue Report
+                                </button>
+                                <button class="btn btn-outline-info mb-2" onclick="exportData('occupancy')">
+                                     Export Occupancy Statistics
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>📈 Chart Downloads</h6>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button class="btn btn-outline-secondary mb-2" onclick="downloadChart('occupancyChart')">
+                                     Download Occupancy Chart
+                                </button>
+                                <button class="btn btn-outline-secondary mb-2" onclick="downloadChart('revenueChart')">
+                                    Download Revenue Chart
+                                </button>
+                                <button class="btn btn-outline-secondary mb-2" onclick="downloadAllCharts()">
+                                    Download All Charts
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #007bff !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #28a745 !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #17a2b8 !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #ffc107 !important;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Load Chart.js visualizations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Occupancy Chart
+        fetch('/api/charts/occupancy_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const ctx1 = document.getElementById('occupancyChart').getContext('2d');
+                    new Chart(ctx1, {
+                        type: 'bar',
+                        data: data.data,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Current Parking Lot Status'
+                                },
+                                legend: {
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Spots'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Parking Lots'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading occupancy chart:', error);
+                document.getElementById('occupancyChart').innerHTML = '<p class="text-center text-muted">Chart data unavailable</p>';
+            });
+
+        // Revenue Chart
+        fetch('/api/charts/revenue_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const ctx2 = document.getElementById('revenueChart').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'line',
+                        data: data.data,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Last 7 Days Revenue'
+                                },
+                                legend: {
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Revenue (₹)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Date'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading revenue chart:', error);
+                document.getElementById('revenueChart').innerHTML = '<p class="text-center text-muted">Chart data unavailable</p>';
+            });
+
+        // Peak Hours Chart
+        createPeakHoursChart();
+        
+        // Weekly Pattern Chart
+        createWeeklyPatternChart();
+        
+        // Lot Performance Chart
+        createLotPerformanceChart();
+        
+        // Load quick reports
+        loadQuickReports();
+    });
+
+    function createPeakHoursChart() {
+        const ctx = document.getElementById('peakHoursChart').getContext('2d');
+        
+        // Sample data for peak hours (0-23)
+        const hourlyData = [];
+        for (let i = 0; i < 24; i++) {
+            // Simulate peak hours: higher usage during 9-17 and 19-21
+            let usage = Math.random() * 10;
+            if ((i >= 9 && i <= 17) || (i >= 19 && i <= 21)) {
+                usage += Math.random() * 20;
+            }
+            hourlyData.push(Math.round(usage));
+        }
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 24}, (_, i) => i + ':00'),
+                datasets: [{
+                    label: 'Reservations',
+                    data: hourlyData,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Reservations'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hour of Day'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function createWeeklyPatternChart() {
+        const ctx = document.getElementById('weeklyPatternChart').getContext('2d');
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const weeklyData = [45, 52, 48, 61, 55, 67, 43]; // Sample data
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: days,
+                datasets: [{
+                    data: weeklyData,
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#17a2b8', '#ffc107',
+                        '#dc3545', '#6f42c1', '#fd7e14'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function createLotPerformanceChart() {
+        const ctx = document.getElementById('lotPerformanceChart').getContext('2d');
+        
+        fetch('/api/charts/occupancy_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.labels) {
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: data.data.labels.slice(0, 5), // First 5 lots
+                            datasets: [{
+                                label: 'Occupancy Rate',
+                                data: data.data.datasets[0].data.slice(0, 5).map(val => (val / Math.max(...data.data.datasets[0].data)) * 100),
+                                borderColor: '#dc3545',
+                                backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                                pointBackgroundColor: '#dc3545'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading lot performance chart:', error);
+            });
+    }
+
+    function loadQuickReports() {
+        // Simulate loading quick reports data
+        setTimeout(() => {
+            document.getElementById('dailyRevenue').textContent = '₹2,450';
+            document.getElementById('peakOccupancy').textContent = '85%';
+            document.getElementById('avgDuration').textContent = '2.5h';
+            document.getElementById('bestLot').textContent = 'Mall Plaza';
+        }, 1000);
+    }
+
+    function generateReport() {
+        alert('📊 Full report generation feature will be implemented soon!');
+    }
+
+    function exportData(type) {
+        alert(`📤 Exporting ${type} data... Feature coming soon!`);
+    }
+
+    function downloadChart(chartId) {
+        const canvas = document.getElementById(chartId);
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = chartId + '.png';
+        link.href = url;
+        link.click();
+    }
+
+    function downloadAllCharts() {
+        ['occupancyChart', 'revenueChart', 'peakHoursChart', 'weeklyPatternChart', 'lotPerformanceChart'].forEach(chartId => {
+            setTimeout(() => downloadChart(chartId), 500);
+        });
+    }
+</script>
+{% endblock %}

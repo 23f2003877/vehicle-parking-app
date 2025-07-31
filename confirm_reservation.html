@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% set title = "Confirm Reservation" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Back Navigation -->
+            <div class="mb-3">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    ← Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Confirmation Card -->
+            <div class="card">
+                <div class="card-header text-center" style="background: linear-gradient(45deg, #28a745, #20c997); color: white;">
+                    <h4> Confirm Parking Reservation</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Parking Lot Details -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>🏢 {{ lot.name }}</h5>
+                            <div class="text-muted mb-3">
+                                <p class="mb-1">📍 {{ lot.address }}</p>
+                                <p class="mb-1">📮 PIN: {{ lot.pin_code }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing and Availability Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card text-center border-success">
+                                <div class="card-body">
+                                    <h6 class="text-success"> Price</h6>
+                                    <h4>₹{{ "%.2f"|format(lot.price_per_unit) }}</h4>
+                                    <small class="text-muted">per hour</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center border-info">
+                                <div class="card-body">
+                                    <h6 class="text-info">Available Spots</h6>
+                                    <h4>{{ available_spots }}</h4>
+                                    <small class="text-muted">spots ready</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center border-warning">
+                                <div class="card-body">
+                                    <h6 class="text-warning"> Assignment</h6>
+                                    <h4>Auto</h4>
+                                    <small class="text-muted">best spot</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Important Information -->
+                    <div class="alert alert-info">
+                        <h6>📋 Important Information:</h6>
+                        <ul class="mb-0">
+                            <li> A parking spot will be automatically assigned to you</li>
+                            <li> Billing starts immediately upon confirmation</li>
+                            <li> Remember to release your spot when leaving</li>
+                            <li> You can manage your reservation from the dashboard</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pricing Estimates -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6> Estimated Costs:</h6>
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <strong>30 min</strong><br>
+                                    <span class="text-success">₹{{ "%.2f"|format(lot.price_per_unit * 0.5) }}</span>
+                                </div>
+                                <div class="col-3">
+                                    <strong>1 hour</strong><br>
+                                    <span class="text-info">₹{{ "%.2f"|format(lot.price_per_unit) }}</span>
+                                </div>
+                                <div class="col-3">
+                                    <strong>2 hours</strong><br>
+                                    <span class="text-warning">₹{{ "%.2f"|format(lot.price_per_unit * 2) }}</span>
+                                </div>
+                                <div class="col-3">
+                                    <strong>4 hours</strong><br>
+                                    <span class="text-danger">₹{{ "%.2f"|format(lot.price_per_unit * 4) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Form -->
+                    <form method="POST" action="{{ url_for('reserve_spot', lot_id=lot.id) }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="window.history.back()">
+                                    ❌ Cancel
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-success w-100">
+                                     Confirm Reservation
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Additional Tips -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6>💡 Parking Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="emoji-medium">🚀</div>
+                                <div>
+                                    <strong>Quick Access</strong><br>
+                                    <small class="text-muted">Your spot details will appear in "Active Reservations"</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="emoji-medium">📱</div>
+                                <div>
+                                    <strong>Mobile Ready</strong><br>
+                                    <small class="text-muted">Access your dashboard from anywhere</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '⏳ Reserving Spot...';
+        submitBtn.disabled = true;
+    });
+</script>
+{% endblock %}

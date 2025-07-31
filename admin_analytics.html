@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}📊 System Analytics{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">📊 System Overview & Analytics</h2>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary"> Dashboard</a>
+            <a href="{{ url_for('admin_charts') }}" class="btn btn-outline-secondary">📈 Charts</a>
+        </div>
+    </div>
+
+    <!-- System Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col me-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Total Revenue</div>
+                            <div class="h5 mb-0">₹{{ "%.2f"|format(total_revenue) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i>₹</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col me-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Total Users</div>
+                            <div class="h5 mb-0">{{ total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col me-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Total Spots</div>
+                            <div class="h5 mb-0">{{ total_spots }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-parking fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            {% set occupancy_rate = (occupied_spots / total_spots * 100) if total_spots > 0 else 0 %}
+            <div class="card text-white {% if occupancy_rate > 75 %}bg-danger{% elif occupancy_rate > 50 %}bg-warning{% else %}bg-secondary{% endif %}">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col me-2">
+                            <div class="font-weight-bold text-uppercase mb-1">Occupancy Rate</div>
+                            <div class="h5 mb-0">{{ "%.1f"|format(occupancy_rate) }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analytics -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Revenue Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="emoji-large">💰</div>
+                                <h6>Total Revenue</h6>
+                                <span class="badge bg-success">₹{{ "%.2f"|format(total_revenue) }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="emoji-large">📋</div>
+                                <h6>Total Reservations</h6>
+                                <span class="badge bg-info">{{ completed_reservations|length + active_reservations|length }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="emoji-large">💎</div>
+                                <h6>Avg per Session</h6>
+                                {% if completed_reservations %}
+                                    {% set avg_revenue = total_revenue / completed_reservations|length %}
+                                    <span class="badge bg-warning text-dark">₹{{ "%.2f"|format(avg_revenue) }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">₹0.00</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Current Status</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="badge bg-success">{{ available_spots }}</span>
+                            <small class="ms-2">Available Spots</small>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-danger">{{ occupied_spots }}</span>
+                            <small class="ms-2">Occupied Spots</small>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-warning">{{ active_reservations|length }}</span>
+                            <small class="ms-2">Active Reservations</small>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-info">{{ completed_reservations|length }}</span>
+                            <small class="ms-2">Completed Sessions</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performing Lots -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5> Top Performing Lots</h5>
+                </div>
+                <div class="card-body">
+                    {% if lots %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Parking Lot</th>
+                                        <th>Revenue</th>
+                                        <th>Occupancy</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lot in lots[:5] %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>
+                                            <strong>{{ lot.name }}</strong><br>
+                                            <small class="text-muted">{{ lot.location }}</small>
+                                        </td>
+                                        <td>
+                                            {% set lot_revenue = lot.spots|selectattr('reservations')|sum(attribute='reservations')|map(attribute='cost')|sum %}
+                                            <span class="text-success">₹{{ "%.2f"|format(lot_revenue|default(0)) }}</span>
+                                        </td>
+                                        <td>
+                                            {% set lot_occupancy = ((lot.max_spots - lot.available_spots) / lot.max_spots * 100) if lot.max_spots > 0 else 0 %}
+                                            <span class="badge {% if lot_occupancy > 75 %}bg-danger{% elif lot_occupancy > 50 %}bg-warning{% else %}bg-success{% endif %}">
+                                                {{ "%.0f"|format(lot_occupancy) }}%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <p>No parking lots available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5> System Health</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            {% if occupancy_rate > 80 %}
+                                <div class="alert alert-danger">
+                                    <strong>🔴 High Occupancy Alert!</strong><br>
+                                    <small>{{ "%.1f"|format(occupancy_rate) }}% of spots are occupied. Consider adding more parking lots in busy areas.</small>
+                                </div>
+                            {% elif occupancy_rate < 30 %}
+                                <div class="alert alert-success">
+                                    <strong>🟢 Excellent Availability!</strong><br>
+                                    <small>Only {{ "%.1f"|format(occupancy_rate) }}% occupancy. Great availability across the system.</small>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <strong>🟡 Moderate Occupancy</strong><br>
+                                    <small>{{ "%.1f"|format(occupancy_rate) }}% occupancy. System running smoothly.</small>
+                                </div>
+                            {% endif %}
+
+                            <div class="mt-3">
+                                <h6>📱 Live Activity</h6>
+                                {% if active_reservations %}
+                                    <p><small><strong>{{ active_reservations|length }}</strong> users currently parking.</small></p>
+                                {% else %}
+                                    <p><small>No active parking sessions at the moment.</small></p>
+                                {% endif %}
+                                
+                                {% if recent_reservations %}
+                                    <p><small><strong>{{ recent_reservations|length }}</strong> reservations in the last 24 hours.</small></p>
+                                {% endif %}
+                                
+                                <p><small>Managing <strong>{{ lots|length }}</strong> parking facilities with <strong>{{ total_spots }}</strong> total capacity.</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Summary -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🕒 Recent Activity Summary</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_reservations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>User</th>
+                                        <th>Parking Lot</th>
+                                        <th>Status</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in recent_reservations[-10:] %}
+                                    <tr>
+                                        <td>
+                                            {{ reservation.parking_timestamp.strftime('%H:%M') }}<br>
+                                            <small class="text-muted">{{ reservation.parking_timestamp.strftime('%d %b') }}</small>
+                                        </td>
+                                        <td>{{ reservation.user.user_id }}</td>
+                                        <td>
+                                            <strong>{{ reservation.spot.lot.name }}</strong><br>
+                                            <small class="text-muted">Spot {{ reservation.spot.spot_number }}</small>
+                                        </td>
+                                        <td>
+                                            {% if reservation.leaving_timestamp %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Active</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if reservation.cost %}
+                                                <span class="text-success">₹{{ "%.2f"|format(reservation.cost) }}</span>
+                                            {% else %}
+                                                <span class="text-muted">Ongoing</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Recent Activity</h5>
+                            <p class="text-muted">No parking activity in the last 24 hours.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.emoji-large {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.card {
+    border-left: 4px solid #007bff;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

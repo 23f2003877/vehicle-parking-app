@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% set title = "Search Parking Lots" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 20px;">
+                    <h2>🔍 Search Available Parking Lots</h2>
+                    <p class="lead mb-0">Find the perfect parking spot by searching lot names</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🔎 Search Parking Lots</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="mb-0">
+                        <div class="row align-items-end">
+                            <div class="col-md-8 mb-3">
+                                <label for="search_query" class="form-label">Search by Lot Name:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="search_query" 
+                                       name="search_query" 
+                                       value="{{ search_query }}"
+                                       placeholder="Enter parking lot name..."
+                                       required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if search_query %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>📋 Search Results</h5>
+                    <span class="badge badge-primary">{{ search_results|length }} lots found</span>
+                </div>
+                <div class="card-body">
+                    {% if search_results %}
+                        <div class="row">
+                            {% for lot in search_results %}
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card h-100 border-left-success">
+                                    <div class="card-header text-center" style="background: linear-gradient(45deg, #28a745, #20c997); color: white;">
+                                        <h6 class="mb-0">{{ lot.name }}</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-12">
+                                                <small class="text-muted">Address:</small><br>
+                                                <span class="font-weight-bold">{{ lot.address }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <small class="text-muted">Price:</small><br>
+                                                <span class="text-success font-weight-bold">₹{{ lot.price_per_unit }}/hr</span>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">PIN Code:</small><br>
+                                                <span class="badge badge-secondary">{{ lot.pin_code }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <small class="text-muted">Available:</small><br>
+                                                <span class="badge badge-success">{{ lot.available_spots }} spots</span>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Total:</small><br>
+                                                <span class="badge badge-info">{{ lot.max_spots }} spots</span>
+                                            </div>
+                                        </div>
+                                        <div class="progress mb-3" style="height: 8px;">
+                                            {% set occupancy_rate = ((lot.max_spots - lot.available_spots) / lot.max_spots * 100) if lot.max_spots > 0 else 0 %}
+                                            <div class="progress-bar 
+                                                {% if occupancy_rate < 50 %}bg-success
+                                                {% elif occupancy_rate < 80 %}bg-warning
+                                                {% else %}bg-danger
+                                                {% endif %}" 
+                                                style="width: {{ occupancy_rate }}%">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ "%.0f"|format(occupancy_rate) }}% occupied</small>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="{{ url_for('reserve_spot', lot_id=lot.id) }}" 
+                                           class="btn btn-success btn-sm w-100">
+                                            🅿️ Reserve Spot Now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No available parking lots found</h5>
+                            <p class="text-muted">No parking lots matching "{{ search_query }}" with available spots were found.</p>
+                            <p class="text-muted">Try searching with different keywords or check back later.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Back to Dashboard -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="text-center">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-success {
+    border-left: 4px solid #28a745;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    transition: all 0.3s ease;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+.badge {
+    font-size: 0.85em;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+</style>
+{% endblock %}

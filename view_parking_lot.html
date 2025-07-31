@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% set title = "View Parking Lot" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 20px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2>🏢 {{ lot.name }}</h2>
+                            <p class="mb-0">📍 {{ lot.address }}, {{ lot.pin_code }}</p>
+                            <p class="mb-0">💰 ₹{{ "%.2f"|format(lot.price_per_unit) }}/hour</p>
+                        </div>
+                        <div class="text-end">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-light">
+                                ← Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h5 class="text-success">🟢 Available Spots</h5>
+                    <h3>{{ available_spots }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h5 class="text-danger">🔴 Occupied Spots</h5>
+                    <h3>{{ occupied_spots }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h5 class="text-info">📊 Occupancy Rate</h5>
+                    <h3>{{ "%.1f"|format(occupancy_rate) }}%</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parking Spots and Reservations -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🅿️ Parking Spots ({{ spots|length }})</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Spot #</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for spot in spots %}
+                                <tr>
+                                    <td><strong>{{ spot.spot_number }}</strong></td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if spot.status == 'A' else 'bg-danger' }}">
+                                            {{ '🟢 Available' if spot.status == 'A' else '🔴 Occupied' }}
+                                        </span>
+                                    </td>
+                                    <td><small>{{ spot.created_at.strftime('%Y-%m-%d') if spot.created_at else 'N/A' }}</small></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📋 Recent Reservations</h5>
+                </div>
+                <div class="card-body">
+                    {% if reservations %}
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Spot</th>
+                                        <th>Status</th>
+                                        <th>Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for res in reservations %}
+                                    <tr>
+                                        <td><strong>{{ res.user_id }}</strong></td>
+                                        <td>{{ res.spot_number }}</td>
+                                        <td>
+                                            <span class="badge {{ 'bg-success' if res.leaving_timestamp else 'bg-warning' }}">
+                                                {{ '✅ Completed' if res.leaving_timestamp else '⏳ Active' }}
+                                            </span>
+                                        </td>
+                                        <td>₹{{ "%.2f"|format(res.cost) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <div class="emoji-large">📭</div>
+                            <h5>No Reservations Yet</h5>
+                            <p class="text-muted">This parking lot hasn't had any reservations yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <a href="{{ url_for('edit_parking_lot_page', lot_id=lot.id) }}" class="btn btn-warning me-3">
+                        ✏️ Edit Parking Lot
+                    </a>
+                    {% set occupied = spots|selectattr("status", "equalto", "O")|list|length %}
+                    {% if occupied == 0 %}
+                    <a href="{{ url_for('delete_parking_lot_page', lot_id=lot.id) }}" class="btn btn-danger">
+                        🗑️ Delete Parking Lot
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled title="Cannot delete while spots are occupied">
+                        🔒 Cannot Delete ({{ occupied }} spots occupied)
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add hover effects
+    document.addEventListener('DOMContentLoaded', function() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .table tbody tr:hover {
+                background-color: rgba(0,123,255,0.05);
+            }
+            .btn:hover {
+                transform: translateY(-1px);
+            }
+            .btn {
+                transition: all 0.2s ease;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

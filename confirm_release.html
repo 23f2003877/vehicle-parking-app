@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% set title = "Confirm Release" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Back Navigation -->
+            <div class="mb-3">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    ← Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Confirmation Card -->
+            <div class="card">
+                <div class="card-header text-center" style="background: linear-gradient(45deg, #dc3545, #e74c3c); color: white;">
+                    <h4>🚀 Confirm Spot Release</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Reservation Details -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>🅿️ Current Reservation Details</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>🏢 Parking Lot:</strong> {{ reservation.spot.lot.name }}</p>
+                                            <p><strong>📍 Location:</strong> {{ reservation.spot.lot.address }}</p>
+                                            <p><strong>🅿️ Spot Number:</strong> {{ reservation.spot.spot_number }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong> Parked Since:</strong> {{ reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                                            <p><strong> Duration:</strong> {{ "%.1f"|format(duration_hours) }} hours</p>
+                                            <p><strong> Hourly Rate:</strong> ₹{{ "%.2f"|format(reservation.spot.lot.price_per_unit) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cost Breakdown -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>💳 Final Bill Calculation</h5>
+                            <div class="card border-warning">
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-4">
+                                            <h6 class="text-info">⏱️ Duration</h6>
+                                            <h4>{{ "%.1f"|format(duration_hours) }}</h4>
+                                            <small class="text-muted">hours</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h6 class="text-success">💰 Rate</h6>
+                                            <h4>₹{{ "%.2f"|format(reservation.spot.lot.price_per_unit) }}</h4>
+                                            <small class="text-muted">per hour</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h6 class="text-warning">💳 Total Cost</h6>
+                                            <h4 class="text-warning">₹{{ "%.2f"|format(estimated_cost) }}</h4>
+                                            <small class="text-muted">final amount</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3 text-center">
+                                        <div class="alert alert-info d-inline-block">
+                                            <strong>💡 Calculation:</strong> {{ "%.1f"|format(duration_hours) }} hours × ₹{{ "%.2f"|format(reservation.spot.lot.price_per_unit) }} = ₹{{ "%.2f"|format(estimated_cost) }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Important Information -->
+                    <div class="alert alert-warning">
+                        <h6>⚠️ Important Notes:</h6>
+                        <ul class="mb-0">
+                            <li>🔒 Once released, this action cannot be undone</li>
+                            <li>💳 The final amount will be charged: ₹{{ "%.2f"|format(estimated_cost) }}</li>
+                            <li>🅿️ The parking spot will become available for others</li>
+                            <li>📧 You'll receive a receipt for this transaction</li>
+                        </ul>
+                    </div>
+
+                    <!-- Time Saved Information -->
+                    {% if duration_hours < 1 %}
+                    <div class="alert alert-success">
+                        <strong>🎉 Great!</strong> You've used the spot for less than an hour. Efficient parking! 
+                    </div>
+                    {% elif duration_hours > 8 %}
+                    <div class="alert alert-info">
+                        <strong>🕐 Long Stay:</strong> You've been parked for over 8 hours. Hope you had a productive day!
+                    </div>
+                    {% endif %}
+
+                    <!-- Release Form -->
+                    <form method="POST" action="{{ url_for('release_spot', reservation_id=reservation.id) }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="window.history.back()">
+                                    ❌ Keep Parking
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-danger w-100">
+                                     Release Spot & Pay ₹{{ "%.2f"|format(estimated_cost) }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Helpful Tips -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6>💡 Next Time Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="emoji-medium">⏰</div>
+                                <div>
+                                    <strong>Release Early</strong><br>
+                                    <small class="text-muted">Release your spot as soon as you leave to save money</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="emoji-medium">📱</div>
+                                <div>
+                                    <strong>Mobile Access</strong><br>
+                                    <small class="text-muted">You can release spots from anywhere using your phone</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add form validation and loading state
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '⏳ Processing Release...';
+        submitBtn.disabled = true;
+    });
+</script>
+{% endblock %}

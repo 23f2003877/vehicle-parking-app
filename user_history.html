@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}📋 Booking History{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">📋 My Booking History</h2>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">🏠 Dashboard</a>
+            <a href="{{ url_for('user_statistics') }}" class="btn btn-outline-secondary">📊 Statistics</a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title"> Total Bookings</h5>
+                    <h3 class="mb-0">{{ reservations|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title"> Total Spent</h5>
+                    <h3 class="mb-0">${{ "%.2f"|format(total_spent) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title"> Active Cost</h5>
+                    <h3 class="mb-0">${{ "%.2f"|format(active_cost) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Reservations -->
+    {% if active_reservations %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">🕒 Active Reservations ({{ active_reservations|length }})</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>🏢 Parking Lot</th>
+                            <th>🅿️ Spot</th>
+                            <th>⏰ Started</th>
+                            <th>⏱️ Duration</th>
+                            <th>💵 Current Cost</th>
+                            <th>🎯 Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in active_reservations %}
+                        <tr>
+                            <td>
+                                <strong>{{ reservation.spot.lot.name }}</strong><br>
+                                <small class="text-muted">{{ reservation.spot.lot.location }}</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-info">{{ reservation.spot.spot_number }}</span>
+                            </td>
+                            <td>
+                                {{ reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}<br>
+                                <small class="text-muted">{{ reservation.parking_timestamp.strftime('%A') }}</small>
+                            </td>
+                            <td>
+                                {% if reservation.duration_hours %}
+                                    <span class="text-primary">{{ "%.1f"|format(reservation.duration_hours) }} hours</span>
+                                {% else %}
+                                    <span class="text-muted">Calculating...</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if reservation.current_cost %}
+                                    <span class="text-warning font-weight-bold">${{ "%.2f"|format(reservation.current_cost) }}</span>
+                                {% else %}
+                                    <span class="text-muted">$0.00</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('release_spot', reservation_id=reservation.id) }}" 
+                                   class="btn btn-sm btn-danger">
+                                     Release Spot
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Completed Reservations -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">✅ Completed Reservations ({{ completed_reservations|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if completed_reservations %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>🏢 Parking Lot</th>
+                            <th>🅿️ Spot</th>
+                            <th>⏰ Parked</th>
+                            <th> Left</th>
+                            <th>⏱️ Duration</th>
+                            <th>💰 Cost</th>
+                            <th>📋 Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in completed_reservations %}
+                        <tr>
+                            <td>
+                                <strong>{{ reservation.spot.lot.name }}</strong><br>
+                                <small class="text-muted">{{ reservation.spot.lot.location }}</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-secondary">{{ reservation.spot.spot_number }}</span>
+                            </td>
+                            <td>
+                                {{ reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}<br>
+                                <small class="text-muted">{{ reservation.parking_timestamp.strftime('%A') }}</small>
+                            </td>
+                            <td>
+                                {% if reservation.leaving_timestamp %}
+                                    {{ reservation.leaving_timestamp.strftime('%Y-%m-%d %H:%M') }}<br>
+                                    <small class="text-muted">{{ reservation.leaving_timestamp.strftime('%A') }}</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if reservation.duration_hours %}
+                                    <span class="text-info">{{ "%.1f"|format(reservation.duration_hours) }} hours</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="text-success font-weight-bold">${{ "%.2f"|format(reservation.cost) }}</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-success">✅ Completed</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No completed bookings yet</h5>
+                <p class="text-muted">Start parking to see your booking history!</p>
+                <a href="{{ url_for('search_spots') }}" class="btn btn-primary">
+                    🔍 Find Parking Spots
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pagination for large datasets -->
+    {% if completed_reservations|length > 20 %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Booking history pagination">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">🔍 Need a Parking Spot?</h5>
+                    <p class="card-text">Find and reserve available parking spots near you.</p>
+                    <a href="{{ url_for('search_spots') }}" class="btn btn-primary">
+                        🅿️ Search Spots
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📊 View Your Statistics</h5>
+                    <p class="card-text">Check your parking patterns and spending insights.</p>
+                    <a href="{{ url_for('user_statistics') }}" class="btn btn-info">
+                        📈 View Stats
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh for active reservations -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh active reservations every 30 seconds
+    {% if active_reservations %}
+    setInterval(function() {
+        // Only refresh if there are active reservations
+        if ({{ active_reservations|length }} > 0) {
+            location.reload();
+        }
+    }, 30000); // 30 seconds
+    {% endif %}
+});
+</script>
+{% endblock %}

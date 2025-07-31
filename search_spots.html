@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% set title = "Search Parking Spots" %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 20px;">
+                    <h2>🔍 Search Parking Spots</h2>
+                    <p class="lead mb-0">Find specific parking spots and check their status</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🔍 Search Criteria</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="search_query" class="form-label">Search Query</label>
+                                <input type="text" class="form-control" id="search_query" name="search_query" 
+                                       value="{{ search_query }}" placeholder="Enter spot number, lot name, or status..."
+                                       required>
+                                <div class="form-text">Search for specific spot numbers, parking lot names, or status (available/occupied)</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="search_type" class="form-label">Search Type</label>
+                                <select class="form-select" id="search_type" name="search_type">
+                                    <option value="all" {{ 'selected' if search_type == 'all' else '' }}>All</option>
+                                    <option value="spot_number" {{ 'selected' if search_type == 'spot_number' else '' }}>Spot Number</option>
+                                    <option value="lot_name" {{ 'selected' if search_type == 'lot_name' else '' }}>Lot Name</option>
+                                    <option value="status" {{ 'selected' if search_type == 'status' else '' }}>Status</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                ← Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                🔍 Search Spots
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if search_results %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>📊 Search Results</h5>
+                    <span class="badge bg-primary">{{ search_results|length }} spots found</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>🅿️ Spot Number</th>
+                                    <th>🏢 Parking Lot</th>
+                                    <th>📍 Location</th>
+                                    <th>📊 Status</th>
+                                    <th>👤 Current User</th>
+                                    <th>⏰ Parked Since</th>
+                                    <th>🛠️ Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in search_results %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-outline-primary fs-6">{{ result.spot.spot_number }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ result.lot.name }}</strong><br>
+                                        <small class="text-muted">💰 ₹{{ "%.2f"|format(result.lot.price_per_unit) }}/hr</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ result.lot.address[:30] }}...</small><br>
+                                        <small class="text-muted">📮 {{ result.lot.pin_code }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ result.status_class }}">
+                                            {{ '🟢' if result.spot.status == 'A' else '🔴' }} {{ result.status_text }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if result.current_reservation %}
+                                            <strong>{{ result.current_reservation.user.user_id }}</strong>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if result.current_reservation %}
+                                            <small>{{ result.current_reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}</small><br>
+                                            {% set duration_hours = ((moment.utcnow() if moment else now) - result.current_reservation.parking_timestamp).total_seconds() / 3600 %}
+                                            <small class="text-muted">⏱️ {{ "%.1f"|format(duration_hours) }} hours</small>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_parking_lot_page', lot_id=result.lot.id) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            👁️ View Lot
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4>🔍 No Results Found</h4>
+                <p>No parking spots match your search criteria "{{ search_query }}". Try a different search term.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Search Tips -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6>💡 Search Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>🅿️ Spot Number Search:</h6>
+                            <ul class="small">
+                                <li>Search for specific spots: "1", "15", "A1"</li>
+                                <li>Partial matches supported</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🏢 Parking Lot Search:</h6>
+                            <ul class="small">
+                                <li>Search by lot name: "Mall", "Airport"</li>
+                                <li>Case-insensitive matching</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>📊 Status Search:</h6>
+                            <ul class="small">
+                                <li>Use "available" or "A" for free spots</li>
+                                <li>Use "occupied" or "O" for taken spots</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🔍 All Search:</h6>
+                            <ul class="small">
+                                <li>Searches across all categories</li>
+                                <li>Best for general queries</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Enhanced search form functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.querySelector('form');
+        const searchInput = document.getElementById('search_query');
+        const searchType = document.getElementById('search_type');
+        
+        // Auto-focus search input
+        searchInput.focus();
+        
+        // Update placeholder based on search type
+        searchType.addEventListener('change', function() {
+            const placeholders = {
+                'all': 'Enter spot number, lot name, or status...',
+                'spot_number': 'Enter spot number (e.g., 1, 15, A1)...',
+                'lot_name': 'Enter parking lot name...',
+                'status': 'Enter status (available, occupied, A, O)...'
+            };
+            searchInput.placeholder = placeholders[this.value];
+        });
+        
+        // Form submission enhancement
+        searchForm.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '🔄 Searching...';
+            submitBtn.disabled = true;
+        });
+        
+        // Keyboard shortcut for search (Ctrl+F)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+    });
+</script>
+{% endblock %}
